@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dr. Waitlist | Exclusive Access</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@500;700&family=Montserrat:wght@300;400;600&display=swap');
+        
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: 'Montserrat', sans-serif;
+            background: linear-gradient(rgba(20, 40, 30, 0.85), rgba(20, 40, 30, 0.85)), url('https://images.unsplash.com/photo-1498837167922-41cfa6f310f1?ixlib=rb-4.0.3&auto=format&fit=crop&w=1920&q=80') center/cover no-repeat fixed;
+            height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            color: #f4f6f5;
+        }
+        
+        .glass-panel {
+            background: rgba(255, 255, 255, 0.08);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            padding: 50px 60px;
+            border-radius: 20px;
+            box-shadow: 0 30px 60px rgba(0,0,0,0.4);
+            max-width: 450px;
+            text-align: center;
+        }
+        
+        h1 {
+            font-family: 'Playfair Display', serif;
+            font-size: 38px;
+            margin-bottom: 15px;
+            letter-spacing: 1px;
+            color: #ffffff;
+        }
+        
+        p {
+            font-size: 15px;
+            color: #d1dfd6;
+            line-height: 1.7;
+            margin-bottom: 40px;
+            font-weight: 300;
+        }
+        
+        .input-group {
+            margin-bottom: 20px;
+        }
+        
+        input[type="email"] {
+            width: 100%;
+            padding: 16px 20px;
+            background: rgba(255, 255, 255, 0.95);
+            border: none;
+            border-radius: 30px;
+            font-size: 15px;
+            color: #333;
+            box-sizing: border-box;
+            outline: none;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+        }
+        
+        button {
+            width: 100%;
+            background-color: #c9a96e; 
+            color: #1a231e;
+            border: none;
+            padding: 16px;
+            border-radius: 30px;
+            font-size: 15px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(201, 169, 110, 0.3);
+            text-transform: uppercase;
+            letter-spacing: 1.5px;
+        }
+        
+        button:hover {
+            background-color: #dfbc7a;
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(201, 169, 110, 0.5);
+        }
+        
+        .footer {
+            margin-top: 35px;
+            font-size: 10px;
+            color: rgba(255,255,255,0.4);
+            letter-spacing: 2px;
+            text-transform: uppercase;
+        }
+
+        /* I added a little custom CSS just for the database results so they scroll if there are too many! */
+        #listings-container {
+            max-height: 200px;
+            overflow-y: auto;
+            margin-top: 15px;
+        }
+    </style>
+</head>
+<body>
+    <div class="glass-panel">
+        <h1>Elevated Care.</h1>
+        <p>We are redefining holistic healthcare in South Africa. Secure your place on our priority waitlist before our doors open.</p>
+        
+        <div class="input-group">
+            <input type="email" placeholder="Enter your email address" required>
+        </div>
+        <button type="button" onclick="alert('Welcome to the priority list. We will be in touch.')">Request Access</button>
+        
+        <button onclick="fetchListings()" style="margin-top: 20px; background-color: #4CAF50; color: white;">Find Open Rooms</button>
+        
+        <div id="listings-container"></div>
+        
+        <div class="footer">
+            Architected Securely on AWS
+        </div>
+    </div>
+
+    <script>
+        async function fetchListings() {
+            const container = document.getElementById('listings-container');
+            container.innerHTML = '<p>Connecting to database...</p>'; 
+
+            try {
+                // This knocks on your API Gateway door
+                const response = await fetch('https://f8iukvci3l.execute-api.us-east-1.amazonaws.com/prod/listings');
+                const data = await response.json();
+
+                container.innerHTML = ''; // Clears the loading message
+
+                // Loops through database items and builds a visual card for each one
+                data.forEach(listing => {
+                    const card = document.createElement('div');
+                    card.style.padding = '15px';
+                    card.style.margin = '10px 0';
+                    card.style.background = 'rgba(255, 255, 255, 0.1)'; 
+                    card.style.borderRadius = '10px';
+                    card.style.border = '1px solid rgba(255, 255, 255, 0.2)';
+                    card.style.textAlign = 'left';
+                    
+                    card.innerHTML = `
+                        <h3 style="margin: 0 0 5px 0; font-size: 16px;">🏥 ${listing.ClinicName}</h3>
+                        <p style="margin: 0; font-size: 13px; opacity: 0.9;">📍 ${listing.City}</p>
+                        <p style="margin: 5px 0 0 0; font-size: 13px; font-weight: bold; color: #c9a96e;">${listing.ListingType}</p>
+                    `;
+                    container.appendChild(card);
+                });
+
+            } catch (error) {
+                console.error('Error fetching listings:', error);
+                container.innerHTML = '<p style="color: #ff9999;">Database connection error.</p>';
+            }
+        }
+    </script>
+</body>
+</html>

@@ -1,24 +1,32 @@
 # AWS Serverless Directory: Elevated Care
 
-## 🚀 Project Overview
-A serverless, high-end healthcare waitlist and directory application built to demonstrate secure cloud architecture. The system features a modern **Glassmorphism UI** and an event-driven backend that fetches real-time clinic data from a NoSQL database.
+## Why I Built This
+I wanted to build a serverless healthcare directory with a security-first mindset from day one, 
+proving I could enforce least privilege even on a project where the main visible output is just 
+a clean frontend.
 
-## 🏗️ Architecture
-- **Frontend:** Responsive HTML5/CSS3 UI with an "Elevated Care" aesthetic, hosted on **Amazon S3**.
-- **API Management:** **Amazon API Gateway** (REST API) acting as a secure proxy between the frontend and backend logic.
-- **Compute:** **AWS Lambda (Python)** executing business logic and database queries on-demand.
-- **Database:** **Amazon DynamoDB** utilized for high-availability storage of clinic listings.
+## What I Built
+- **Frontend:** Responsive HTML5/CSS3 UI, hosted on Amazon S3.
+- **API Layer:** Amazon API Gateway (REST) as a secure proxy between frontend and backend logic.
+- **Compute:** AWS Lambda (Python) handling business logic and database queries on-demand.
+- **Database:** Amazon DynamoDB for high-availability clinic listing storage.
 
-## 🔒 Security focus: IAM Least Privilege
-As an aspiring Cybersecurity specialist, I built this project with a **"Security First"** mindset. 
-* **Scoped Permissions:** Instead of using broad administrative roles, I configured a custom execution role for the Lambda function.
-* **Policy Enforcement:** The function is restricted to **`DynamoDBReadOnlyAccess`**. This ensures that even if a malicious actor attempted to inject code into the frontend, they would be physically unable to delete or modify the database records via the backend.
+## Security Focus: IAM Least Privilege
+Instead of a broad administrative role, I scoped the Lambda's execution role to exactly 
+`DynamoDBReadOnlyAccess`. Even if someone injected malicious code through the frontend, the 
+backend is physically incapable of deleting or modifying database records.
 
-## 🛠️ Challenges & Troubleshooting
-### 1. CORS Policy Resolution
-While connecting the S3 frontend to the API Gateway, I encountered **Cross-Origin Resource Sharing (CORS)** blocks. I resolved this by:
-- Enabling CORS headers in the API Gateway Resource settings.
-- Manually injecting `Access-Control-Allow-Origin` headers into the Lambda Python response dictionary to satisfy browser security requirements.
+## Challenges & Troubleshooting
+- **CORS Policy Resolution:** Connecting the S3 frontend to API Gateway triggered CORS blocks. 
+  I resolved it by enabling CORS headers in the API Gateway resource settings and manually 
+  injecting `Access-Control-Allow-Origin` into the Lambda's Python response dictionary.
+- **Lambda Proxy Integration Response:** Hit a 502 Bad Gateway until I restructured the Lambda's 
+  return object to match AWS's strict proxy integration format: `statusCode`, `headers`, and a 
+  JSON-stringified `body`.
 
-### 2. Lambda Proxy Integration Response
-I overcame a **502 Bad Gateway** error by restructuring the Lambda return object to follow the strict AWS Proxy Integration format, ensuring the `statusCode`, `headers`, and `body` (JSON stringified) were perfectly aligned.
+## What I'd Do Next
+This proves the least-privilege pattern, but I wouldn't call it production-ready. Next: Cognito 
+user pools in front of the API, since a real healthcare directory can't sit on an open, 
+unauthenticated endpoint even read-only; request validation models in API Gateway instead of 
+trusting Lambda to catch bad input; and structured CloudWatch logging so every read is traceable 
+to a specific request.

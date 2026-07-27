@@ -25,8 +25,13 @@ backend is physically incapable of deleting or modifying database records.
   JSON-stringified `body`.
 
 ## What I'd Do Next
-This proves the least-privilege pattern, but I wouldn't call it production-ready. Next: Cognito 
-user pools in front of the API, since a real healthcare directory can't sit on an open, 
-unauthenticated endpoint even read-only; request validation models in API Gateway instead of 
-trusting Lambda to catch bad input; and structured CloudWatch logging so every read is traceable 
-to a specific request.
+This proves the least-privilege pattern, but I wouldn't call it production-ready. Next:
+1. **Authentication:** Implement Amazon Cognito User Pools in front of the API, ensuring patient 
+   or administrative data isn't exposed on an open public endpoint.
+2. **Input Validation:** Enforce request validation models directly in API Gateway rather than 
+   relying solely on the Lambda function to catch malformed payloads.
+3. **Observability:** Introduce structured logging in CloudWatch so every read is traceable to a 
+   specific request ID and client IP.
+4. **Tighter IAM Scoping:** Replace the AWS-managed `DynamoDBReadOnlyAccess` policy with a custom 
+   inline policy scoped to only `GetItem` and `Query` on this specific table's ARN, removing 
+   read access to any other DynamoDB tables in the account.
